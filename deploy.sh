@@ -23,7 +23,7 @@ sudo npm install -g npm@latest
 sudo npm install -g pm2
 
 # 6️⃣ 进入应用目录
-cd ~/ExampleApplication
+cd ~/SimmpleApplication
 
 # 7️⃣ 安装 npm 依赖
 npm install --legacy-peer-deps
@@ -36,8 +36,8 @@ echo "$PRIVATE_KEY" | sed 's/\\n/\n/g' > privatekey.pem
 echo "$SERVER" | sed 's/\\n/\n/g' > server.crt
 
 # 🔟 停止旧进程，启动新的进程
-pm2 stop example_app || true
-pm2 restart example_app || pm2 start ./bin/www --name example_app
+pm2 stop simpleapplication || true
+pm2 restart simpleapplication || pm2 start ./bin/www --name simpleapplication
 
 # 1️⃣1️⃣ 持久化 PM2（防止服务器重启后丢失进程）
 pm2 save
