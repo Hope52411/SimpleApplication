@@ -1,14 +1,34 @@
 #!/usr/bin/env bash
-sudo apt update && sudo apt install nodejs npm
-# Install pm2 which is a production process manager for Node.js with a built-in load balancer.
+set -e  # 发生错误时立即退出
+
+echo "🚀 Starting application deployment..."
+
+# 更新系统并安装 Node.js 和 npm
+sudo apt update -y
+sudo apt install -y nodejs npm
+
+# 安装 pm2
 sudo npm install -g pm2
-# stop any instance of our application running currently
-pm2 stop simpleapplication
-# change directory into folder where application is downloaded
-cd SimmpleApplication/
-# Install application dependencies
-npm install
-echo $PRIVATE_KEY > privatekey.pem
-echo $SERVER > server.crt
-# Start the application with the process name example_app using pm2
-pm2 start ./bin/www --name simpleapplication
+
+# 停止已有应用
+pm2 stop simpleapplication || true
+
+# 进入应用目录
+cd ~/SimpleApplication
+
+# 安装依赖
+npm install --legacy-peer-deps
+npm audit fix --force || true  # 修复潜在的 npm 安全问题
+
+# 生成 HTTPS 证书
+echo "$PRIVATE_KEY" | sed 's/\\n/\n/g' > privatekey.pem
+echo "$SERVER" | sed 's/\\n/\n/g' > server.crt
+
+# 启动应用
+pm2 restart simpleapplication || pm2 start ./bin/www --name simpleapplication
+pm2 save  # 使应用保持在 `pm2 list` 中
+
+# 确保 pm2 开机自启（仅在非 CI/CD 环境下执行）
+[ -z "$CI" ] && sudo pm2 startup
+
+echo "✅ Deployment completed successfully!"
