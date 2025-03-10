@@ -1,34 +1,36 @@
 #!/usr/bin/env bash
-set -e  # 发生错误时立即退出
-
+set -e  # Exit the script immediately if any command fails
 echo "🚀 Starting application deployment..."
-
-# 更新系统并安装 Node.js 和 npm
-sudo apt update -y
-sudo apt install -y nodejs npm
-
-# 安装 pm2
+# Completely remove old versions of Node.js and npm to prevent dependency conflicts
+sudo apt-get remove --purge -y nodejs npm || true
+sudo apt-get autoremove -y
+sudo apt-get autoclean
+sudo rm -rf /usr/lib/node_modules ~/.npm ~/.node-gyp /usr/local/lib/node_modules /usr/local/bin/npm /usr/local/bin/node /usr/bin/node
+# Ensure the system is up to date
+sudo apt-get update -y
+# Install Node.js and npm (from the official Nodesource repository)
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+sudo apt-get install -y nodejs
+# Ensure npm is available
+sudo npm install -g npm@latest
+# Ensure pm2 is installed
 sudo npm install -g pm2
-
-# 停止已有应用
-pm2 stop simpleapplication || true
-
-# 进入应用目录
+# Navigate to the application directory
 cd ~/SimpleApplication
-
-# 安装依赖
+# Install npm dependencies
 npm install --legacy-peer-deps
-npm audit fix --force || true  # 修复潜在的 npm 安全问题
-
-# 生成 HTTPS 证书
+# Fix npm security vulnerabilities (⚠️ Avoid disrupting CircleCI execution)
+npm audit fix --force || true
+# Recreate HTTPS certificate files
 echo "$PRIVATE_KEY" | sed 's/\\n/\n/g' > privatekey.pem
 echo "$SERVER" | sed 's/\\n/\n/g' > server.crt
-
-# 启动应用
+# Stop the old process and start a new one
+pm2 stop simpleapplication || true
 pm2 restart simpleapplication || pm2 start ./bin/www --name simpleapplication
-pm2 save  # 使应用保持在 `pm2 list` 中
-
-# 确保 pm2 开机自启（仅在非 CI/CD 环境下执行）
-[ -z "$CI" ] && sudo pm2 startup
-
+# Persist PM2 process (prevents process loss after a server reboot)
+pm2 save
+# Run `pm2 startup` only on an EC2 server
+if [ -z "$CI" ]; then
+  sudo pm2 startup
+fi
 echo "✅ Deployment completed successfully!"
