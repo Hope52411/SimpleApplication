@@ -31,6 +31,7 @@ npm install --legacy-peer-deps
 # 8️⃣ 解决 npm 安全漏洞（⚠️ 避免影响 CircleCI 执行）
 npm audit fix --force || true
 
+
 # 9️⃣ 重新创建 HTTPS 证书文件
 echo "$PRIVATE_KEY" | sed 's/\\n/\n/g' > privatekey.pem
 echo "$SERVER" | sed 's/\\n/\n/g' > server.crt
