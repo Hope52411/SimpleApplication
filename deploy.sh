@@ -15,7 +15,7 @@ if ! command -v npm &> /dev/null; then
     exit 1
 fi
 
-# 3️⃣ 安装 pm2（如果已安装，则更新）
+# 3️⃣ 安装 pm2（如果已安装，就更新）
 echo "Installing PM2..."
 sudo npm install -g pm2
 if ! command -v pm2 &> /dev/null; then
