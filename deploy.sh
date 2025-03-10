@@ -23,7 +23,7 @@ sudo npm install -g npm@latest
 sudo npm install -g pm2
 
 # 6️⃣ 进入应用目录
-cd ~/SimmpleApplication
+cd ~/SimpleApplication
 
 # 7️⃣ 安装 npm 依赖
 npm install --legacy-peer-deps
