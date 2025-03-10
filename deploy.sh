@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -e  # Exit the script immediately if any command fails
-echo "🚀 Starting application deployment..."
+echo "Starting application deployment..."
 # Completely remove old versions of Node.js and npm to prevent dependency conflicts
 sudo apt-get remove --purge -y nodejs npm || true
 sudo apt-get autoremove -y
@@ -27,10 +27,5 @@ echo "$SERVER" | sed 's/\\n/\n/g' > server.crt
 # Stop the old process and start a new one
 pm2 stop simpleapplication || true
 pm2 restart simpleapplication || pm2 start ./bin/www --name simpleapplication
-# Persist PM2 process (prevents process loss after a server reboot)
-pm2 save
-# Run `pm2 startup` only on an EC2 server
-if [ -z "$CI" ]; then
-  sudo pm2 startup
-fi
-echo "✅ Deployment completed successfully!"
+
+echo "Deployment completed successfully!"
