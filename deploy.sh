@@ -10,6 +10,7 @@ pm2 stop simpleapplication
 # change directory into folder where application is downloaded
 cd SimpleApplication/
 
+
 # Install application dependencies
 npm install
 echo $PRIVATE_KEY > private.pem
